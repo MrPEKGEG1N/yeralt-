@@ -1,0 +1,47 @@
+{% extends 'base.html' %}
+{% block title %}{{ baslik }} – Yeraltı İmparatorluğu{% endblock %}
+{% block content %}
+
+<div class="sayfa-baslik">{{ ikon }} {{ baslik }}</div>
+
+<div style="background:var(--bg3);border-radius:var(--radius);padding:8px 14px;margin-bottom:1.5rem;font-size:13px;display:flex;gap:16px;">
+  <span>💵 Kasan: <strong style="color:var(--green);">{{ "{:,}".format(oyuncu.para) }}₺</strong></span>
+  <span>⚔️ Mevcut Gücün: <strong style="color:var(--red);">{{ "{:,}".format(oyuncu.guc) }}</strong></span>
+</div>
+
+{% for item in liste %}
+<div class="is-kart">
+  <div class="is-ikon">{{ '🔫' if tur == 'silah' else '👤' }}</div>
+  <div class="is-detay">
+    <h3>{{ item.ad }}</h3>
+    <p style="color:var(--text2);">{{ item.aciklama }}</p>
+    <p>
+      <span style="color:var(--red);font-weight:600;">⚔️ +{{ "{:,}".format(item.guc) }} Güç</span>
+      &nbsp;|&nbsp;
+      <span style="color:var(--gold);font-weight:600;">💵 {{ "{:,}".format(item.fiyat) }}₺</span>
+    </p>
+  </div>
+  <div>
+    {% if oyuncu.para >= item.fiyat %}
+    <button class="btn {{ 'btn-mavi' if tur == 'silah' else 'btn-yesil' }}"
+            onclick="satinAl('{{ item.id }}', '{{ tur }}', this)">
+      [ {{ '🔫 SATIN AL' if tur == 'silah' else '👥 KİRALA' }} ]
+    </button>
+    {% else %}
+    <button class="btn btn-sm" disabled>Yetersiz Para</button>
+    {% endif %}
+  </div>
+</div>
+{% endfor %}
+
+{% endblock %}
+{% block scripts %}
+<script>
+async function satinAl(id, tur, btn) {
+  btn.disabled = true;
+  const r = await post('/satin-al', {item_id: id, tur: tur});
+  if(r.basari) { toast(r.basari); setTimeout(()=>location.reload(), 800); }
+  else { toast(r.hata, 'hata'); btn.disabled = false; }
+}
+</script>
+{% endblock %}

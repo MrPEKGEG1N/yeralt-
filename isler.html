@@ -1,0 +1,81 @@
+{% extends 'base.html' %}
+{% block title %}Mafya Grupları{% endblock %}
+{% block content %}
+<div class="sayfa-baslik">👑 Mafya Grupları</div>
+
+<div class="grid-2" style="margin-bottom:1.5rem;">
+
+  {% if not oyuncu.grup_id %}
+  <div class="kart">
+    <div class="kart-baslik">Kendi Grubunu Kur</div>
+    <p style="font-size:13px;color:var(--text2);margin-bottom:1rem;">Kendi mafya grubunu kur, üye topla, güç kazan.<br>
+    <strong style="color:var(--gold);">Maliyet: 5.000₺</strong></p>
+    <div class="form-grup"><label>Grup Adı</label><input class="form-input" id="grup-ad" placeholder="Sicilya Ailesi" maxlength="50"></div>
+    <div class="form-grup"><label>Açıklama</label><input class="form-input" id="grup-aciklama" placeholder="Şehrin en güçlü ailesi..."></div>
+    <button class="btn btn-altin" onclick="grupKur()">[ 👑 GRUBU KUR – 5.000₺ ]</button>
+  </div>
+  {% else %}
+  <div class="kart">
+    <div class="kart-baslik">Grubun</div>
+    {% if oyuncu.grup %}
+    <div style="font-size:22px;font-weight:700;color:var(--red);margin-bottom:4px;">{{ oyuncu.grup.ad }}</div>
+    <div style="font-size:13px;color:var(--text2);margin-bottom:1rem;">{{ oyuncu.grup.aciklama or 'Açıklama yok' }}</div>
+    <div style="display:flex;gap:8px;align-items:center;">
+      <span class="badge {{ 'badge-gold' if oyuncu.grup_rol == 'lider' else 'badge-blue' }}">
+        {{ '👑 Lider' if oyuncu.grup_rol == 'lider' else '👤 Üye' }}
+      </span>
+      {% if oyuncu.grup_rol != 'lider' %}
+      <button class="btn btn-kirmizi btn-sm" onclick="grupAyril()">Gruptan Ayrıl</button>
+      {% endif %}
+    </div>
+    {% endif %}
+  </div>
+  {% endif %}
+
+  <div class="kart">
+    <div class="kart-baslik">Tüm Gruplar</div>
+    {% if gruplar %}
+    <div style="display:flex;flex-direction:column;gap:8px;">
+      {% for g in gruplar %}
+      <div style="padding:10px 12px;background:var(--bg3);border-radius:var(--radius);display:flex;align-items:center;gap:10px;">
+        <div style="flex:1;">
+          <div style="font-size:14px;font-weight:600;color:var(--text);">{{ g.ad }}</div>
+          <div style="font-size:11px;color:var(--text3);">{{ g.uye_sayisi }} üye</div>
+        </div>
+        {% if not oyuncu.grup_id %}
+          <button class="btn btn-yesil btn-sm" onclick="grupKatil({{ g.id }})">Katıl</button>
+        {% elif oyuncu.grup_id == g.id %}
+          <span class="badge badge-gold">Üyesin</span>
+        {% endif %}
+      </div>
+      {% endfor %}
+    </div>
+    {% else %}
+    <div style="text-align:center;padding:1.5rem;color:var(--text3);font-size:13px;">Henüz grup yok. İlk grubu sen kur!</div>
+    {% endif %}
+  </div>
+</div>
+{% endblock %}
+{% block scripts %}
+<script>
+async function grupKur() {
+  const ad = document.getElementById('grup-ad').value.trim();
+  const aciklama = document.getElementById('grup-aciklama').value.trim();
+  if(!ad) { toast('Grup adı gerekli!', 'hata'); return; }
+  const r = await post('/grup-kur', {ad, aciklama});
+  if(r.basari) { toast(r.basari); setTimeout(()=>location.reload(), 800); }
+  else toast(r.hata, 'hata');
+}
+async function grupKatil(id) {
+  const r = await post('/grup-katil/' + id);
+  if(r.basari) { toast(r.basari); setTimeout(()=>location.reload(), 800); }
+  else toast(r.hata, 'hata');
+}
+async function grupAyril() {
+  if(!confirm('Gruptan ayrılmak istediğinden emin misin?')) return;
+  const r = await post('/gruptan-ayril');
+  if(r.basari) { toast(r.basari); setTimeout(()=>location.reload(), 800); }
+  else toast(r.hata, 'hata');
+}
+</script>
+{% endblock %}

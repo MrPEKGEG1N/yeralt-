@@ -1,0 +1,28 @@
+{% extends 'base.html' %}
+{% block title %}E-posta Doğrulama{% endblock %}
+{% block content_auth %}
+<div class="auth-wrap">
+  <div class="auth-box">
+    <div style="text-align:center;margin-bottom:2rem;">
+      <div style="font-size:56px;margin-bottom:8px;">📧</div>
+      <div style="font-size:22px;font-weight:700;color:var(--gold);">E-posta Doğrulama</div>
+      <div style="font-size:13px;color:var(--text3);margin-top:6px;">
+        Mail kutunu kontrol et, 6 haneli kodu gir.
+      </div>
+    </div>
+    <div class="kart">
+      <form method="POST">
+        <div class="form-grup">
+          <label>Doğrulama Kodu</label>
+          <input class="form-input" name="kod" placeholder="123456" maxlength="6"
+                 style="font-size:24px;text-align:center;letter-spacing:8px;font-weight:700;" required autofocus>
+        </div>
+        <button type="submit" class="btn btn-altin btn-tam">[ ✅ HESABI DOĞRULA ]</button>
+      </form>
+      <div style="text-align:center;margin-top:1rem;font-size:12px;color:var(--text3);">
+        Kod 30 dakika geçerlidir. Gelmedi mi? <a href="/kayit">Yeniden kayıt ol</a>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

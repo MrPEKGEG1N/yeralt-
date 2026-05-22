@@ -1,0 +1,25 @@
+{% extends 'base.html' %}
+{% block title %}Liderlik Tablosu{% endblock %}
+{% block content %}
+<div class="sayfa-baslik">🏆 Sözü Geçenler – Liderlik Tablosu</div>
+<div class="sayfa-alt">"Yeraltı dünyasında saygınlık puanla ölçülür. İsmini en üste yazdıran raconu keser."</div>
+<div class="kart">
+  <table class="tablo">
+    <thead><tr><th>Sıra</th><th>Oyuncu</th><th>Saygınlık</th><th>Seviye</th><th>Güç</th><th>Kasa</th><th>Galibiyet</th><th>Grup</th></tr></thead>
+    <tbody>
+    {% for p in oyuncular %}
+    <tr class="{{ 'oyuncu-satir' if p.id == oyuncu.id else '' }}">
+      <td>{% if loop.index == 1 %}🥇{% elif loop.index == 2 %}🥈{% elif loop.index == 3 %}🥉{% else %}<span style="color:var(--text3);">{{ loop.index }}</span>{% endif %}</td>
+      <td><a href="/profil/{{ p.id }}" style="color:{{ 'var(--red)' if p.id == oyuncu.id else 'var(--text)' }};font-weight:600;">{{ p.kullanici_adi }}{% if p.id == oyuncu.id %} <span style="font-size:10px;color:var(--text3);">(sen)</span>{% endif %}</a></td>
+      <td style="color:var(--gold);font-weight:700;">{{ "{:,}".format(p.sayginlik) }}</td>
+      <td><span class="badge badge-gold">{{ p.seviye }}</span></td>
+      <td style="color:var(--red);">{{ "{:,}".format(p.guc) }}</td>
+      <td style="color:var(--green);">{{ "{:,}".format(p.para) }}₺</td>
+      <td><span class="badge badge-green">{{ p.galibiyet }}</span></td>
+      <td>{% if p.grup_adi %}<span class="badge badge-purple">{{ p.grup_adi }}</span>{% else %}<span style="color:var(--text3);">—</span>{% endif %}</td>
+    </tr>
+    {% endfor %}
+    </tbody>
+  </table>
+</div>
+{% endblock %}

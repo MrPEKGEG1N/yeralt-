@@ -1,0 +1,59 @@
+{% extends 'base.html' %}
+{% block title %}{{ hedef.kullanici_adi }} – Profil{% endblock %}
+{% block content %}
+<div class="sayfa-baslik">🔫 Oyuncu Profili</div>
+<div class="grid-2">
+  <div class="kart">
+    <div style="text-align:center;padding:1rem;">
+      <div style="font-size:56px;margin-bottom:8px;">🔫</div>
+      <div style="font-size:22px;font-weight:700;color:var(--red);">{{ hedef.kullanici_adi }}</div>
+      {% if hedef.grup %}<span class="badge badge-purple" style="margin-top:6px;">{{ hedef.grup.ad }}</span>{% endif %}
+    </div>
+    <div class="grid-4" style="margin-top:1rem;">
+      <div class="stat-box"><div class="stat-sayi" style="color:var(--gold);">{{ hedef.seviye }}</div><div class="stat-etiket">Seviye</div></div>
+      <div class="stat-box"><div class="stat-sayi" style="color:var(--red);">{{ "{:,}".format(hedef.guc) }}</div><div class="stat-etiket">Güç</div></div>
+      <div class="stat-box"><div class="stat-sayi" style="color:var(--gold);">{{ "{:,}".format(hedef.sayginlik) }}</div><div class="stat-etiket">Saygınlık</div></div>
+      <div class="stat-box"><div class="stat-sayi" style="color:var(--green);">{{ galibiyet }}</div><div class="stat-etiket">Galibiyet</div></div>
+    </div>
+    {% if hedef.id != oyuncu.id %}
+    <div style="margin-top:1.5rem;">
+      <button class="btn btn-kirmizi btn-tam" onclick="saldir({{ hedef.id }})">[ ⚔️ SALDIR ]</button>
+    </div>
+    {% endif %}
+  </div>
+  <div class="kart">
+    <div class="kart-baslik">Ele Geçirilen Limanlar</div>
+    {% if limanlar %}
+    {% for l in limanlar %}
+    <div style="padding:8px 10px;background:var(--bg3);border-radius:var(--radius);margin-bottom:6px;">
+      <span style="font-size:13px;">⚓ {{ l }}</span>
+    </div>
+    {% endfor %}
+    {% else %}
+    <div style="color:var(--text3);font-size:13px;padding:1rem 0;">Henüz liman yok.</div>
+    {% endif %}
+  </div>
+</div>
+
+<div id="savas-modal" class="modal-arkaplan">
+  <div class="modal-kutu">
+    <div id="modal-ikon" style="font-size:64px;margin-bottom:8px;"></div>
+    <div id="modal-baslik" style="font-size:20px;font-weight:700;margin-bottom:6px;"></div>
+    <div id="modal-mesaj" style="font-size:13px;color:var(--text2);margin-bottom:1.5rem;"></div>
+    <button class="btn btn-tam" onclick="document.getElementById('savas-modal').style.display='none';location.reload();">[ Tamam ]</button>
+  </div>
+</div>
+{% endblock %}
+{% block scripts %}
+<script>
+async function saldir(id) {
+  const r = await post('/saldir/' + id);
+  if(r.hata) { toast(r.hata, 'hata'); return; }
+  document.getElementById('modal-ikon').textContent = r.kazanan === 'sen' ? '🏆' : '💀';
+  document.getElementById('modal-baslik').textContent = r.kazanan === 'sen' ? 'ZAFERSİN!' : 'YENİLDİN!';
+  document.getElementById('modal-baslik').style.color = r.kazanan === 'sen' ? 'var(--green)' : 'var(--red)';
+  document.getElementById('modal-mesaj').textContent = r.mesaj;
+  document.getElementById('savas-modal').style.display = 'flex';
+}
+</script>
+{% endblock %}

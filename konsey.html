@@ -1,0 +1,67 @@
+{% extends 'base.html' %}
+{% block title %}Rakipler – Yeraltı İmparatorluğu{% endblock %}
+{% block content %}
+<div class="sayfa-baslik">⚔️ Rakiplere Saldır</div>
+<div class="sayfa-alt">"Güçlüysen al, zayıfsan kaç."</div>
+
+<div class="kart">
+  <table class="tablo">
+    <thead><tr>
+      <th>#</th><th>Oyuncu</th><th>Seviye</th><th>Güç</th><th>Saygınlık</th><th>Sağlık</th><th>Grup</th><th></th>
+    </tr></thead>
+    <tbody>
+    {% for p in liste %}
+    <tr>
+      <td style="color:var(--text3);">{{ loop.index }}</td>
+      <td><a href="/profil/{{ p.id }}" style="color:var(--text);font-weight:600;">{{ p.kullanici_adi }}</a></td>
+      <td><span class="badge badge-gold">{{ p.seviye }}</span></td>
+      <td style="color:var(--red);font-weight:600;">{{ "{:,}".format(p.guc) }}</td>
+      <td style="color:var(--gold);">{{ "{:,}".format(p.sayginlik) }}</td>
+      <td>
+        <div style="display:flex;align-items:center;gap:6px;min-width:80px;">
+          <div class="progress" style="flex:1;"><div class="progress-bar hp" style="width:{{ (p.saglik/p.max_saglik*100)|int }}%"></div></div>
+          <span style="font-size:10px;color:var(--text3);">{{ p.saglik }}</span>
+        </div>
+      </td>
+      <td>
+        {% if p.grup_adi %}<span class="badge badge-purple">{{ p.grup_adi }}</span>
+        {% else %}<span style="color:var(--text3);">—</span>{% endif %}
+      </td>
+      <td><button class="btn btn-kirmizi btn-sm" onclick="saldir({{ p.id }}, '{{ p.kullanici_adi }}')">⚔️ Saldır</button></td>
+    </tr>
+    {% endfor %}
+    {% if not liste %}
+    <tr><td colspan="8" style="text-align:center;padding:2rem;color:var(--text3);">Başka oyuncu yok. Arkadaşlarını davet et!</td></tr>
+    {% endif %}
+    </tbody>
+  </table>
+</div>
+
+<div id="savas-modal" class="modal-arkaplan">
+  <div class="modal-kutu">
+    <div id="modal-ikon" style="font-size:64px;margin-bottom:8px;"></div>
+    <div id="modal-baslik" style="font-size:20px;font-weight:700;margin-bottom:6px;"></div>
+    <div id="modal-mesaj" style="font-size:13px;color:var(--text2);margin-bottom:1.5rem;line-height:1.6;"></div>
+    <button class="btn btn-tam" onclick="modalKapat()">[ Tamam ]</button>
+  </div>
+</div>
+{% endblock %}
+{% block scripts %}
+<script>
+async function saldir(id, ad) {
+  const btn = event.target;
+  btn.disabled = true; btn.textContent = '...';
+  const r = await post('/saldir/' + id);
+  setTimeout(() => { btn.disabled = false; btn.textContent = '⚔️ Saldır'; }, 3000);
+  if(r.hata) { toast(r.hata, 'hata'); return; }
+  const m = document.getElementById('savas-modal');
+  document.getElementById('modal-ikon').textContent = r.kazanan === 'sen' ? '🏆' : '💀';
+  document.getElementById('modal-baslik').textContent = r.kazanan === 'sen' ? 'ZAFERSİN!' : 'YENİLDİN!';
+  document.getElementById('modal-baslik').style.color = r.kazanan === 'sen' ? 'var(--green)' : 'var(--red)';
+  document.getElementById('modal-mesaj').textContent = r.mesaj;
+  m.style.display = 'flex';
+  setTimeout(() => location.reload(), 4000);
+}
+function modalKapat() { document.getElementById('savas-modal').style.display='none'; location.reload(); }
+</script>
+{% endblock %}
