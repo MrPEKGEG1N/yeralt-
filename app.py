@@ -645,6 +645,7 @@ def profil(oid):
     return render_template('profil.html', oyuncu=oyuncu, hedef=hedef,
                            galibiyet=galibiyet, limanlar=[r[0] for r in limanlar_list])
 
+init_db()
+
 if __name__ == '__main__':
-    init_db()
     app.run(debug=True, host='0.0.0.0', port=5000)
