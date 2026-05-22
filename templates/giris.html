@@ -1,92 +1,20 @@
 {% extends 'base.html' %}
-{% block title %}İşler – Yeraltı İmparatorluğu{% endblock %}
+{% block title %}Giriş – Yeraltı İmparatorluğu{% endblock %}
 {% block content %}
-
-{% set basliklar = {'mahalle': ('🏡 Mahalle İşleri', '"Küçük işlerle sermaye yap, sokağın güvenini kazan."'),
-                   'semt': ('🏢 Semt İşleri', '"Semtte söz sahibi olmak daha büyük güç gerektirir."'),
-                   'sehir': ('🌆 Şehir İşleri', '"Şehrin zirvesindekiler ihaleleri ve büyük sevkiyatları yönetir."')} %}
-
-<div class="sayfa-baslik">{{ basliklar[kategori][0] }}</div>
-<div class="sayfa-alt">{{ basliklar[kategori][1] }}</div>
-
-<div style="background:var(--bg3);border-radius:var(--radius);padding:8px 14px;margin-bottom:1.5rem;
-            display:flex;align-items:center;gap:12px;font-size:13px;">
-  <span>⏳ İcraat Hakkın: <strong style="color:var(--cyan);">{{ oyuncu.icraat }}</strong></span>
-  <span>⚔️ Gücün: <strong style="color:var(--red);">{{ "{:,}".format(oyuncu.guc) }}</strong></span>
-  <span>💵 Kasan: <strong style="color:var(--green);">{{ "{:,}".format(oyuncu.para) }}₺</strong></span>
+<div class="form-kutu">
+  <h2>Giriş Yap</h2>
+  {% with messages = get_flashed_messages(with_categories=true) %}
+    {% for cat, msg in messages %}
+      <div class="alert {{ cat }}">{{ msg }}</div>
+    {% endfor %}
+  {% endwith %}
+  <form method="POST">
+    <input type="text" name="kullanici_adi" placeholder="Kullanıcı Adı" required>
+    <input type="password" name="sifre" placeholder="Şifre" required>
+    <button type="submit" class="btn btn-kirmizi btn-tam">[ GİRİŞ YAP ]</button>
+  </form>
+  <p style="text-align:center;margin-top:1rem;">
+    Hesabın yok mu? <a href="/kayit">Kayıt Ol</a>
+  </p>
 </div>
-
-{% for is in isler %}
-<div class="is-kart" id="kart-{{ is.id }}">
-  <div class="is-ikon">{{ is.gorsel }}</div>
-  <div class="is-detay">
-    <h3>{{ is.ad }}</h3>
-    <p>
-      <span style="color:var(--green);font-weight:600;">💵 +{{ "{:,}".format(is.kazanc) }}₺</span>
-      &nbsp;|&nbsp;
-      <span style="color:var(--gold);">🕶️ +{{ is.sayginlik }} Saygınlık</span>
-    </p>
-    <p class="is-stat">
-      ⏳ {{ is.icraat }} İcraat Hakkı
-      &nbsp;|&nbsp;
-      ⚔️ Min. {{ "{:,}".format(is.min_guc) }} Güç
-    </p>
-  </div>
-  <div>
-    {% if oyuncu.guc < is.min_guc %}
-      <button class="btn btn-sm" disabled>Güç Yetersiz</button>
-    {% elif oyuncu.icraat < is.icraat %}
-      <button class="btn btn-sm" disabled>İcraat Yok</button>
-    {% else %}
-      <button class="btn btn-yesil" onclick="isYap('{{ is.id }}', '{{ kategori }}', this)">
-        [ 💰 İŞİ GERÇEKLEŞTİR ]
-      </button>
-    {% endif %}
-  </div>
-</div>
-{% endfor %}
-
-<!-- Sonuç Modal -->
-<div id="is-modal" class="modal-arkaplan">
-  <div class="modal-kutu">
-    <div style="font-size:56px;margin-bottom:8px;">💥</div>
-    <div style="font-size:20px;font-weight:700;color:var(--red);margin-bottom:6px;">İCRAAT BAŞARILI!</div>
-    <div id="modal-is-adi" style="font-size:14px;color:var(--text2);margin-bottom:1rem;"></div>
-    <div style="background:var(--bg3);border-radius:var(--radius);padding:1rem;margin-bottom:1rem;text-align:left;">
-      <div style="display:flex;justify-content:space-between;margin-bottom:6px;">
-        <span style="font-size:13px;color:var(--text2);">💵 Net Kazanç:</span>
-        <span id="modal-kazanc" style="color:var(--green);font-weight:700;"></span>
-      </div>
-      <div style="display:flex;justify-content:space-between;">
-        <span style="font-size:13px;color:var(--text2);">🕶️ Saygınlık:</span>
-        <span id="modal-sayginlik" style="color:var(--gold);font-weight:700;"></span>
-      </div>
-    </div>
-    <button class="btn btn-kirmizi btn-tam" onclick="modalKapat()">[ ⚔️ RACONU KES ]</button>
-  </div>
-</div>
-
-{% endblock %}
-{% block scripts %}
-<script>
-async function isYap(isId, kategori, btn) {
-  btn.disabled = true;
-  btn.textContent = '...';
-  const r = await post('/is-yap', {is_id: isId, kategori: kategori});
-  if(r.hata) {
-    toast(r.hata, 'hata');
-    btn.disabled = false;
-    btn.textContent = '[ 💰 İŞİ GERÇEKLEŞTİR ]';
-    return;
-  }
-  document.getElementById('modal-is-adi').textContent = r.mesaj;
-  document.getElementById('modal-kazanc').textContent = '+' + r.kazanc.toLocaleString('tr-TR') + '₺';
-  document.getElementById('modal-sayginlik').textContent = '+' + r.sayginlik + ' Saygınlık';
-  document.getElementById('is-modal').style.display = 'flex';
-}
-function modalKapat() {
-  document.getElementById('is-modal').style.display = 'none';
-  location.reload();
-}
-</script>
 {% endblock %}
