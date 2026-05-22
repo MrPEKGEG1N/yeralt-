@@ -1,43 +1,21 @@
 {% extends 'base.html' %}
-{% block title %}Konsey{% endblock %}
+{% block title %}Kayıt Ol – Yeraltı İmparatorluğu{% endblock %}
 {% block content %}
-<div class="sayfa-baslik">🚬 Büyük Mafya Konseyi</div>
-<div class="sayfa-alt">"Masayı topla, tüm ekibini bir araya getir."</div>
-<div class="kart" style="max-width:600px;">
-  <div style="text-align:center;padding:1.5rem;">
-    <div style="font-size:64px;margin-bottom:1rem;">🚬</div>
-    <div style="font-size:18px;font-weight:700;color:var(--gold);margin-bottom:8px;">Konseyi Toplantıya Çağır</div>
-    <div style="font-size:14px;color:var(--text2);margin-bottom:1.5rem;line-height:1.7;">
-      Tüm örgütünü bir araya getir. Konsey toplantısı mevcut gücünü <strong style="color:var(--red);">%30 kalıcı olarak artırır.</strong><br>
-      <span style="color:var(--gold);">Maliyet: 20.000₺</span>
-    </div>
-    <div style="background:var(--bg3);border-radius:var(--radius);padding:1rem;margin-bottom:1.5rem;display:flex;justify-content:center;gap:2rem;">
-      <div>
-        <div style="font-size:11px;color:var(--text3);">Mevcut Gücün</div>
-        <div style="font-size:22px;font-weight:700;color:var(--red);">{{ "{:,}".format(oyuncu.guc) }}</div>
-      </div>
-      <div style="font-size:24px;color:var(--text3);display:flex;align-items:center;">→</div>
-      <div>
-        <div style="font-size:11px;color:var(--text3);">Toplantı Sonrası</div>
-        <div style="font-size:22px;font-weight:700;color:var(--green);">{{ "{:,}".format((oyuncu.guc * 1.3)|int) }}</div>
-      </div>
-    </div>
-    {% if oyuncu.para >= 20000 %}
-    <button class="btn btn-kirmizi btn-tam" style="font-size:15px;padding:12px;" onclick="konseyTopla()">
-      [ 🚬 MASAYI TOPLA – 20.000₺ ]
-    </button>
-    {% else %}
-    <div style="color:var(--text3);font-size:13px;">Yeterli paran yok. (Mevcut: {{ "{:,}".format(oyuncu.para) }}₺)</div>
-    {% endif %}
-  </div>
+<div class="form-kutu">
+  <h2>Kayıt Ol</h2>
+  {% with messages = get_flashed_messages(with_categories=true) %}
+    {% for cat, msg in messages %}
+      <div class="alert {{ cat }}">{{ msg }}</div>
+    {% endfor %}
+  {% endwith %}
+  <form method="POST">
+    <input type="text" name="kullanici_adi" placeholder="Kullanıcı Adı" required>
+    <input type="email" name="email" placeholder="E-posta" required>
+    <input type="password" name="sifre" placeholder="Şifre" required>
+    <button type="submit" class="btn btn-kirmizi btn-tam">[ KAYIT OL ]</button>
+  </form>
+  <p style="text-align:center;margin-top:1rem;">
+    Zaten hesabın var mı? <a href="/giris">Giriş Yap</a>
+  </p>
 </div>
-{% endblock %}
-{% block scripts %}
-<script>
-async function konseyTopla() {
-  const r = await post('/konsey');
-  if(r.basari) { toast(r.basari); setTimeout(()=>location.reload(), 1200); }
-  else toast(r.hata, 'hata');
-}
-</script>
 {% endblock %}
